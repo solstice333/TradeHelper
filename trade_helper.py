@@ -1,5 +1,7 @@
 from collections import namedtuple
 
+DEFAULT_COMMISSION = 5.00
+
 def ema_conv(days, mins):
    """return the equivalent MA period in mins |mins| 
    given an MA period of days |days|
@@ -17,7 +19,7 @@ def loss_perc(a, b):
 
    return (a - b)/a
 
-def gain(sell, buy, money, comm=5.00):
+def gain(sell, buy, money, comm=DEFAULT_COMMISSION):
    """return what the gain would be if buy at |buy| and sell at |sell|, 
    for the amount of shares that |money| can buy. Commissions |comm|
    defaults to 5.00
@@ -40,5 +42,6 @@ def risk(buy, money, max_loss):
    |max_loss| is your 1r multiplier basically
    """
 
+   max_loss = max_loss - DEFAULT_COMMISSION
    shares = num_shares(buy, money)
    return max_loss/shares
