@@ -15,7 +15,7 @@ def loss_price(price, perc):
    return price - price*perc
 
 def loss_perc(a, b):
-   """return the percent decrease associated to price |a| minus price |b|"""
+   """return the percent decrease associated to price |a| minus price |b|"""    
 
    return (a - b)/a
 
@@ -45,3 +45,15 @@ def risk(buy, money, max_loss):
    max_loss = max_loss - DEFAULT_COMMISSION
    shares = num_shares(buy, money)
    return max_loss/shares
+
+def stoploss(ema, atr):
+   """return the location of the stop based on point of purchase |buy|.
+   |ema|, which is usually the 9 EMA on a 5 min freq, is the EMA at the 
+   point of purchase. |atr| is the ATR at the point of purchase.
+   """
+
+   return ema - atr
+
+
+
+
