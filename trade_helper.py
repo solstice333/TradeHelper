@@ -42,9 +42,11 @@ def risk(buy, money, max_loss):
    |max_loss| is your 1r multiplier basically
    """
 
+   Risk = namedtuple('Risk', ['exit', 'move'])
    max_loss = max_loss - DEFAULT_COMMISSION
    shares = num_shares(buy, money)
-   return max_loss/shares
+   move = max_loss/shares
+   return Risk(buy - move, move)
 
 def stoploss(ema, atr):
    """return the location of the stop based on point of purchase |buy|.
