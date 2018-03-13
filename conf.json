@@ -1,0 +1,7 @@
+{
+   "symbol": "AMD",
+   "interval": "5min",
+   "buy": 33.45,
+   "ema_period": 9,
+   "risk": 50
+}
