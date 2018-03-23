@@ -111,9 +111,9 @@ class GainRiskCalc:
       """
 
       Risk = namedtuple('Risk', ['exit', 'move'])
-      self._risk = self._risk - 2*self._comm
+      risk = self._risk - 2*self._comm
       shares = self.num_shares(buy)
-      move = self._risk/shares
+      move = risk/shares
       return Risk(buy - move, move)
 
    def risk_stop(self, buy, stop):
