@@ -92,7 +92,7 @@ class GainRiskCalc:
       """
 
       Gain = namedtuple('Gain', ['gain', 'shares'])
-      shares = num_shares(buy, self._money)
+      shares = self.num_shares(buy)
       return Gain((sell - buy)*shares - self._comm*2, shares)
 
    def num_shares(self, buy):
@@ -112,7 +112,7 @@ class GainRiskCalc:
 
       Risk = namedtuple('Risk', ['exit', 'move'])
       self._risk = self._risk - 2*self._comm
-      shares = num_shares(buy, self._money)
+      shares = self.num_shares(buy)
       move = self._risk/shares
       return Risk(buy - move, move)
 
