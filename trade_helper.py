@@ -92,15 +92,17 @@ class GainRiskCalc:
       """
 
       Gain = namedtuple('Gain', ['gain', 'shares'])
-      shares = self.num_shares(buy)
+      shares = self.num_shares(buy).shares
       return Gain((sell - buy)*shares - self._comm*2, shares)
 
    def num_shares(self, buy):
-      """return number of shares at price |buy| that can be bought 
-      with self.money
+      """return (number of shares, adjusted total amount) pair
+      at price |buy| that can be bought with self.money
       """
 
-      return int(self._money/buy)
+      NumShares = namedtuple('NumShares', ['shares', 'adjamt'])
+      shares = int(self._money/buy)
+      return NumShares(shares, shares*buy) 
 
    def risk(self, buy):
       """return the (stop, monetary movement) pair that can be allowed 
@@ -112,7 +114,7 @@ class GainRiskCalc:
 
       Risk = namedtuple('Risk', ['exit', 'move'])
       risk = self._tol - 2*self._comm
-      shares = self.num_shares(buy)
+      shares = self.num_shares(buy).shares
       move = risk/shares
       return Risk(buy - move, move)
 
