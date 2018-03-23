@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 DEFAULT_COMMISSION = 5.00
-DEFAULT_RISK = 50
+DEFAULT_TOL = 50
 DEFAULT_MONEY = 4e3
 
 def ema_conv(days, mins):
@@ -32,22 +32,22 @@ def stoploss(ema, atr):
 class GainRiskCalc:
    """interface for common gain/risk calculations"""
 
-   def __init__(self, money=None, comm=None, risk=None):
+   def __init__(self, money=None, comm=None, tol=None):
       """create a GainRiskCalc object with total amount of money
       |money| that you're willing to play, commissions |comm|, and
-      risk tolerance 1r |risk|. |money| defaults to DEFAULT_MONEY,
-      |comm| defaults to DEFAULT_COMMISSION, |risk| defaults to
+      risk tolerance 1r |tol|. |money| defaults to DEFAULT_MONEY,
+      |comm| defaults to DEFAULT_COMMISSION, |tol| defaults to
       DEFAULT_RISK."""
 
       self._money = money or DEFAULT_MONEY
       self._comm = comm or DEFAULT_COMMISSION
-      self._risk = risk or DEFAULT_RISK
+      self._tol = tol or DEFAULT_TOL
 
    def __repr__(self):
-      """string representation of self which contains money, comm, risk"""
+      """string representation of self which contains money, comm, tol"""
 
-      return "GainRiskCalc(money={}, comm={}, risk={})".format(
-         self._money, self._comm, self._risk)
+      return "GainRiskCalc(money={}, comm={}, tol={})".format(
+         self._money, self._comm, self._tol)
 
    @property
    def money(self):
@@ -74,16 +74,16 @@ class GainRiskCalc:
       self._comm = comm
 
    @property
-   def risk(self):
+   def tol(self):
       """get risk tolerance 1r"""
 
-      return self._risk
+      return self._tol
 
-   @risk.setter
-   def risk(self, risk):
+   @tol.setter
+   def tol(self, tol):
       """set risk tolerance 1r"""
 
-      self._risk = risk
+      self._tol = tol
 
    def gain(self, sell, buy):
       """return what the gain would be if buy at |buy| and sell at |sell|, 
@@ -104,21 +104,21 @@ class GainRiskCalc:
 
    def risk(self, buy):
       """return the (stop, monetary movement) pair that can be allowed 
-      with a total risk of self.risk, if shares are purchased at |buy| 
-      with amount self.money. self.risk is your 1r multiplier. In short,
+      with a total risk of self.tol, if shares are purchased at |buy| 
+      with amount self.money. self.tol is your 1r multiplier. In short,
       this tells you where to place your stop, given a certain amount
       of money self.money and the purchase price |buy|.
       """
 
       Risk = namedtuple('Risk', ['exit', 'move'])
-      risk = self._risk - 2*self._comm
+      risk = self._tol - 2*self._comm
       shares = self.num_shares(buy)
       move = risk/shares
       return Risk(buy - move, move)
 
    def risk_stop(self, buy, stop):
       """return the money required to achieve the stop price |stop| with 
-      max loss of self.risk and purchase at |buy|. Note that between 
+      max loss of self.tol and purchase at |buy|. Note that between 
       risk() and risk_stop(), risk_stop() is slightly more conservative.
       In short, this tells you how much money to play, given the purchase
       price |buy| and the stop price |stop|. It is typically useful to
@@ -128,4 +128,4 @@ class GainRiskCalc:
 
       delta = stop - buy
       comm_total = 2*self._comm
-      return buy*(comm_total - self._risk)/delta
+      return buy*(comm_total - self._tol)/delta
