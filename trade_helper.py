@@ -22,32 +22,46 @@ def loss_perc(a, b):
    return (a - b)/a
 
 def stoploss(ema, atr):
-   """return the location of the stop based on point of purchase |buy|.
-   |ema|, which is usually the 9 EMA on a 5 min freq, is the EMA at the 
-   point of purchase. |atr| is the ATR at the point of purchase.
-   """
+   """return |ema| - |atr|"""
 
    return ema - atr
 
 class GainRiskCalc:
    """interface for common gain/risk calculations"""
 
-   def __init__(self, money=None, comm=None, tol=None):
-      """create a GainRiskCalc object with total amount of money
-      |money| that you're willing to play, commissions |comm|, and
-      risk tolerance 1r |tol|. |money| defaults to DEFAULT_MONEY,
+   @classmethod
+   def with_buy_stop(cls, buy, stop):
+      """return a GainRiskCalc object based on the point of purchase |buy|
+      and stop |stop|
+      """
+      gl = cls(buy)
+      gl.money = gl.risk_stop(stop)
+      return gl
+
+   def __init__(self, buy=0, money=None, comm=None, tol=None):
+      """create a GainRiskCalc object with purchase price at |buy|,
+      total amount of money |money| that you're willing to play, 
+      commissions |comm|, and risk tolerance 1r |tol|. 
+
+      |buy| defaults to 0, |money| defaults to DEFAULT_MONEY, 
       |comm| defaults to DEFAULT_COMMISSION, |tol| defaults to
-      DEFAULT_RISK."""
+      DEFAULT_RISK.
+      """
 
       self._money = money or DEFAULT_MONEY
       self._comm = comm or DEFAULT_COMMISSION
       self._tol = tol or DEFAULT_TOL
+      self._buy = buy
 
    def __repr__(self):
       """string representation of self which contains money, comm, tol"""
 
-      return "GainRiskCalc(money={}, comm={}, tol={})".format(
-         self._money, self._comm, self._tol)
+      return "GainRiskCalc(" + \
+         "buy={}, ".format(self._buy) + \
+         "money={}, ".format(self._money) + \
+         "num_shares={}, ".format(self.num_shares()) + \
+         "comm={}, ".format(self._comm) + \
+         "tol={})".format(self._tol)
 
    @property
    def money(self):
@@ -85,49 +99,61 @@ class GainRiskCalc:
 
       self._tol = tol
 
-   def gain(self, sell, buy):
-      """return what the gain would be if buy at |buy| and sell at |sell|, 
+   @property
+   def buy(self):
+      """get the purchase price"""
+
+      return self._buy
+
+   @buy.setter
+   def buy(self, purchase):
+      """set purchase price"""
+
+      self._buy = purchase
+
+   def gain(self, sell):
+      """return what the gain would be if self.buy and sell at |sell|, 
       for the amount of shares that self.money can buy taking into
       account self.comm commissions
       """
 
       Gain = namedtuple('Gain', ['gain', 'shares'])
-      shares = self.num_shares(buy).shares
-      return Gain((sell - buy)*shares - self._comm*2, shares)
+      shares = self.num_shares().shares
+      return Gain((sell - self._buy)*shares - self._comm*2, shares)
 
-   def num_shares(self, buy):
+   def num_shares(self):
       """return (number of shares, adjusted total amount) pair
-      at price |buy| that can be bought with self.money
+      at price self.buy that can be bought with self.money
       """
 
       NumShares = namedtuple('NumShares', ['shares', 'adjamt'])
-      shares = int(self._money/buy)
-      return NumShares(shares, shares*buy) 
+      shares = int(self._money/self._buy)
+      return NumShares(shares, shares*self._buy) 
 
-   def risk(self, buy):
+   def risk(self):
       """return the (stop, monetary movement) pair that can be allowed 
-      with a total risk of self.tol, if shares are purchased at |buy| 
+      with a total risk of self.tol, if shares are purchased at self.buy 
       with amount self.money. self.tol is your 1r multiplier. In short,
       this tells you where to place your stop, given a certain amount
-      of money self.money and the purchase price |buy|.
+      of money self.money and the purchase price self.buy.
       """
 
       Risk = namedtuple('Risk', ['exit', 'move'])
       risk = self._tol - 2*self._comm
-      shares = self.num_shares(buy).shares
+      shares = self.num_shares().shares
       move = risk/shares
-      return Risk(buy - move, move)
+      return Risk(self._buy - move, move)
 
-   def risk_stop(self, buy, stop):
+   def risk_stop(self, stop):
       """return the money required to achieve the stop price |stop| with 
-      max loss of self.tol and purchase at |buy|. Note that between 
+      max loss of self.tol and purchase at self.buy. Note that between 
       risk() and risk_stop(), risk_stop() is slightly more conservative.
       In short, this tells you how much money to play, given the purchase
-      price |buy| and the stop price |stop|. It is typically useful to
+      price self.buy and the stop price |stop|. It is typically useful to
       assign the return value to self.money if you decide that's the
       amount to play.
       """
 
-      delta = stop - buy
+      delta = stop - self._buy
       comm_total = 2*self._comm
-      return buy*(comm_total - self._tol)/delta
+      return self._buy*(comm_total - self._tol)/delta
