@@ -127,7 +127,7 @@ class GainRiskCalc:
       """
 
       NumShares = namedtuple('NumShares', ['shares', 'adjamt'])
-      shares = int(self._money/self._buy)
+      shares = int(self._money/self._buy) if self._buy else 0
       return NumShares(shares, shares*self._buy) 
 
    def risk(self):
