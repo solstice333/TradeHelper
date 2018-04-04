@@ -59,7 +59,6 @@ class GainRiskCalc:
       return "GainRiskCalc(" + \
          "buy={}, ".format(self._buy) + \
          "money={}, ".format(self._money) + \
-         "num_shares={}, ".format(self.num_shares()) + \
          "comm={}, ".format(self._comm) + \
          "tol={})".format(self._tol)
 
