@@ -1,9 +1,5 @@
 from collections import namedtuple
 
-DEFAULT_COMMISSION = 5.00
-DEFAULT_TOL = 50
-DEFAULT_MONEY = 4e3
-
 def ema_conv(days, mins):
    """return the equivalent MA period in mins |mins| 
    given an MA period of days |days|
@@ -29,6 +25,10 @@ def stoploss(ema, atr):
 class GainRiskCalc:
    """interface for common gain/risk calculations"""
 
+   DEFAULT_COMMISSION = 5.00
+   DEFAULT_TOL = 50
+   DEFAULT_MONEY = 4e3
+
    @classmethod
    def with_buy_stop(cls, buy, stop):
       """return a GainRiskCalc object based on the point of purchase |buy|
@@ -48,9 +48,9 @@ class GainRiskCalc:
       DEFAULT_RISK.
       """
 
-      self._money = money or DEFAULT_MONEY
-      self._comm = comm or DEFAULT_COMMISSION
-      self._tol = tol or DEFAULT_TOL
+      self._money = money or GainRiskCalc.DEFAULT_MONEY
+      self._comm = comm or GainRiskCalc.DEFAULT_COMMISSION
+      self._tol = tol or GainRiskCalc.DEFAULT_TOL
       self._buy = buy
 
    def __repr__(self):
