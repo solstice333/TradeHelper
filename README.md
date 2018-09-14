@@ -31,7 +31,7 @@ print out the number of shares you should buy:
 NumShares(shares=46, adjamt=1478.44)
 ```
 
-The above says buy $46 (which will cost a total of $1478.44) such that if the price drops from your entry point ($32.14) to your stop loss ($31.28), you only lose a total of `GRC.DEFAULT_TOL` which is set to $50 by default. This takes into account commission fees `GRC.DEFAULT_COMMISSION` which is set to $5.00 by default. 
+The above says buy 46 shares (which will cost a total of $1478.44) such that if the price drops from your entry point ($32.14) to your stop loss ($31.28), you only lose a total of `GRC.DEFAULT_TOL` which is set to $50 by default. This takes into account commission fees `GRC.DEFAULT_COMMISSION` which is set to $5.00 by default. 
 
 To adjust your 1r risk multiplier, simply set `GRC.DEFAULT_TOL` to whatever you'd like:
 
