@@ -38,6 +38,14 @@ class GainRiskCalc:
       gl.money = gl.risk_stop(stop)
       return gl
 
+   @classmethod
+   def with_cost_basis(cls, buy, numshares):
+      """return a GainRiskCalc object based on the point of purchase |buy|
+      and number of shares |numshares|
+      """
+      gl = cls(buy, buy*numshares)
+      return gl
+
    def __init__(self, buy=0, money=None, comm=None, tol=None):
       """create a GainRiskCalc object with purchase price at |buy|,
       total amount of money |money| that you're willing to play, 
